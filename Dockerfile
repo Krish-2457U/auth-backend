@@ -1,24 +1,22 @@
-# Use an official lightweight Java image
+# Use a lightweight Java 17 image
 FROM eclipse-temurin:17-jdk-alpine
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy the Maven wrapper and pom.xml
+# Copy the Maven wrapper files and give permission
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+RUN chmod +x mvnw
 
 # Pre-download dependencies
 RUN ./mvnw dependency:go-offline
 
-# Copy the full source code
+# Copy the full source
 COPY src ./src
 
-# Build the Spring Boot app (skip tests for faster build)
+# Package the application
 RUN ./mvnw clean package -DskipTests
 
-# Expose the port your Spring Boot app runs on
-EXPOSE 4566
-
-# Run the application JAR
+# Run the app
 CMD ["java", "-jar", "target/*.jar"]
